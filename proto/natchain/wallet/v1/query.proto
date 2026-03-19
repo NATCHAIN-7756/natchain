@@ -1,0 +1,126 @@
+syntax = "proto3";
+package natchain.wallet.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "natchain/wallet/v1/params.proto";
+import "natchain/wallet/v1/wallet.proto";
+
+option go_package = "natchain/x/wallet/types";
+
+// Query 查询服务
+service Query {
+  // 查询模块参数
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/natchain/wallet/v1/params";
+  }
+  
+  // 查询钱包信息
+  rpc Wallet(QueryWalletRequest) returns (QueryWalletResponse) {
+    option (google.api.http).get = "/natchain/wallet/v1/wallet/{address}";
+  }
+  
+  // 查询所有钱包
+  rpc WalletAll(QueryWalletAllRequest) returns (QueryWalletAllResponse) {
+    option (google.api.http).get = "/natchain/wallet/v1/wallets";
+  }
+  
+  // 查询钱包余额
+  rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse) {
+    option (google.api.http).get = "/natchain/wallet/v1/balance/{address}";
+  }
+  
+  // 查询转账记录
+  rpc TransferRecords(QueryTransferRecordsRequest) returns (QueryTransferRecordsResponse) {
+    option (google.api.http).get = "/natchain/wallet/v1/transfers/{address}";
+  }
+  
+  // 查询伙伴列表
+  rpc Partners(QueryPartnersRequest) returns (QueryPartnersResponse) {
+    option (google.api.http).get = "/natchain/wallet/v1/partners/{owner}";
+  }
+  
+  // 查询单个伙伴
+  rpc Partner(QueryPartnerRequest) returns (QueryPartnerResponse) {
+    option (google.api.http).get = "/natchain/wallet/v1/partner/{owner}/{address}";
+  }
+}
+
+// QueryParamsRequest 查询参数请求
+message QueryParamsRequest {}
+
+// QueryParamsResponse 查询参数响应
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryWalletRequest 查询钱包请求
+message QueryWalletRequest {
+  string address = 1;
+}
+
+// QueryWalletResponse 查询钱包响应
+message QueryWalletResponse {
+  Wallet wallet = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryWalletAllRequest 查询所有钱包请求
+message QueryWalletAllRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryWalletAllResponse 查询所有钱包响应
+message QueryWalletAllResponse {
+  repeated Wallet wallets = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryBalanceRequest 查询余额请求
+message QueryBalanceRequest {
+  string address = 1;
+}
+
+// QueryBalanceResponse 查询余额响应
+message QueryBalanceResponse {
+  string address = 1;
+  string balance = 2;
+  string threshold = 3;
+  string excess = 4;
+  bool auto_transfer_triggered = 5;
+}
+
+// QueryTransferRecordsRequest 查询转账记录请求
+message QueryTransferRecordsRequest {
+  string address = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryTransferRecordsResponse 查询转账记录响应
+message QueryTransferRecordsResponse {
+  repeated TransferRecord records = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryPartnersRequest 查询伙伴列表请求
+message QueryPartnersRequest {
+  string owner = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryPartnersResponse 查询伙伴列表响应
+message QueryPartnersResponse {
+  repeated Partner partners = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryPartnerRequest 查询单个伙伴请求
+message QueryPartnerRequest {
+  string owner = 1;
+  string address = 2;
+}
+
+// QueryPartnerResponse 查询单个伙伴响应
+message QueryPartnerResponse {
+  Partner partner = 1 [(gogoproto.nullable) = false];
+}

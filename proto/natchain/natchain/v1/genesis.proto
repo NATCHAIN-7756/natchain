@@ -1,0 +1,17 @@
+syntax = "proto3";
+package natchain.natchain.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "natchain/natchain/v1/params.proto";
+
+option go_package = "natchain/x/natchain/types";
+
+// GenesisState defines the natchain module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}

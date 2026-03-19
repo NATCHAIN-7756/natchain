@@ -1,0 +1,15 @@
+syntax = "proto3";
+package natchain.merchant.v1;
+
+import "gogoproto/gogo.proto";
+import "natchain/merchant/v1/params.proto";
+import "natchain/merchant/v1/merchant.proto";
+
+option go_package = "natchain/x/merchant/types";
+
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  repeated Merchant merchants = 2 [(gogoproto.nullable) = false];
+  repeated PaymentRecord payment_records = 3 [(gogoproto.nullable) = false];
+  uint64 next_payment_id = 4;
+}

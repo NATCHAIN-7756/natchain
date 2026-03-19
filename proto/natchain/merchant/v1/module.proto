@@ -1,0 +1,14 @@
+syntax = "proto3";
+package natchain.merchant.v1;
+
+import "cosmos/app/v1alpha1/module.proto";
+
+option go_package = "natchain/x/merchant/types";
+
+message Module {
+  option (cosmos.app.v1alpha1.module) = {
+    go_import: "natchain/x/merchant"
+  };
+  
+  string authority = 1;
+}

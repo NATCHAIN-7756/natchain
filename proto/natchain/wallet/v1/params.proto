@@ -1,0 +1,6 @@
+syntax = "proto3";
+package natchain.wallet.v1;
+
+option go_package = "natchain/x/wallet/types";
+
+message Params {}

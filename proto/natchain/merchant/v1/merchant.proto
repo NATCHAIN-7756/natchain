@@ -1,0 +1,26 @@
+syntax = "proto3";
+package natchain.merchant.v1;
+
+option go_package = "natchain/x/merchant/types";
+
+// Merchant 商家信息
+message Merchant {
+  string address = 1;           // 商家地址
+  string name = 2;              // 商家名称
+  string api_key = 3;           // API Key
+  string callback_url = 4;      // 回调地址
+  int64 created_at = 5;         // 创建时间
+  int64 commission_rate = 6;    // 佣金率（万分比）
+  bool active = 7;              // 是否激活
+}
+
+// PaymentRecord 支付记录
+message PaymentRecord {
+  string id = 1;                // 支付ID
+  string merchant_address = 2;  // 商家地址
+  string user_address = 3;      // 用户地址
+  string amount = 4;            // 金额
+  string status = 5;            // 状态: pending/confirmed/failed
+  int64 timestamp = 6;          // 时间戳
+  string callback_data = 7;     // 回调数据
+}

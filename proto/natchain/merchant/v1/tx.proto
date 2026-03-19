@@ -1,0 +1,78 @@
+syntax = "proto3";
+package natchain.merchant.v1;
+
+import "cosmos/msg/v1/msg.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "natchain/x/merchant/types";
+
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+  
+  // 注册商家
+  rpc RegisterMerchant(MsgRegisterMerchant) returns (MsgRegisterMerchantResponse);
+  
+  // 更新商家信息
+  rpc UpdateMerchant(MsgUpdateMerchant) returns (MsgUpdateMerchantResponse);
+  
+  // 生成新API Key
+  rpc RegenerateApiKey(MsgRegenerateApiKey) returns (MsgRegenerateApiKeyResponse);
+  
+  // 创建支付
+  rpc CreatePayment(MsgCreatePayment) returns (MsgCreatePaymentResponse);
+  
+  // 确认支付
+  rpc ConfirmPayment(MsgConfirmPayment) returns (MsgConfirmPaymentResponse);
+}
+
+message MsgRegisterMerchant {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+  string name = 2;
+  string callback_url = 3;
+  int64 commission_rate = 4;
+}
+
+message MsgRegisterMerchantResponse {
+  string api_key = 1;
+}
+
+message MsgUpdateMerchant {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+  string name = 2;
+  string callback_url = 3;
+  int64 commission_rate = 4;
+}
+
+message MsgUpdateMerchantResponse {}
+
+message MsgRegenerateApiKey {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+}
+
+message MsgRegenerateApiKeyResponse {
+  string api_key = 1;
+}
+
+message MsgCreatePayment {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+  string merchant_address = 2;
+  string amount = 3;
+  string callback_data = 4;
+}
+
+message MsgCreatePaymentResponse {
+  string payment_id = 1;
+}
+
+message MsgConfirmPayment {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+  string payment_id = 2;
+  string status = 3;  // confirmed or failed
+}
+
+message MsgConfirmPaymentResponse {}

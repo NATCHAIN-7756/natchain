@@ -1,0 +1,14 @@
+syntax = "proto3";
+package natchain.natchain.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "natchain/x/natchain/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (amino.name) = "natchain/x/natchain/Params";
+  option (gogoproto.equal) = true;
+  
+}

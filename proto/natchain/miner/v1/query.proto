@@ -1,0 +1,74 @@
+syntax = "proto3";
+package natchain.miner.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "natchain/miner/v1/params.proto";
+import "natchain/miner/v1/genesis.proto";
+
+option go_package = "natchain/x/miner/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Parameters queries the parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/natchain/miner/v1/params";
+  }
+  
+  // Miner queries a single miner by index.
+  rpc Miner(QueryMinerRequest) returns (QueryMinerResponse) {
+    option (google.api.http).get = "/natchain/miner/v1/miner/{index}";
+  }
+  
+  // MinerList queries all miners.
+  rpc MinerList(QueryMinerListRequest) returns (QueryMinerListResponse) {
+    option (google.api.http).get = "/natchain/miner/v1/miners";
+  }
+  
+  // MinerCount queries the total miner count.
+  rpc MinerCount(QueryMinerCountRequest) returns (QueryMinerCountResponse) {
+    option (google.api.http).get = "/natchain/miner/v1/miner_count";
+  }
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}
+
+// QueryMinerRequest is request type for the Query/Miner RPC method.
+message QueryMinerRequest {
+  string index = 1;
+}
+
+// QueryMinerResponse is response type for the Query/Miner RPC method.
+message QueryMinerResponse {
+  Miner miner = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryMinerListRequest is request type for the Query/MinerList RPC method.
+message QueryMinerListRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryMinerListResponse is response type for the Query/MinerList RPC method.
+message QueryMinerListResponse {
+  repeated Miner miners = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryMinerCountRequest is request type for the Query/MinerCount RPC method.
+message QueryMinerCountRequest {}
+
+// QueryMinerCountResponse is response type for the Query/MinerCount RPC method.
+message QueryMinerCountResponse {
+  uint64 count = 1;
+}

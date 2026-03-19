@@ -1,0 +1,13 @@
+syntax = "proto3";
+package natchain.miner.v1;
+
+option go_package = "natchain/x/miner/types";
+
+import "gogoproto/gogo.proto";
+
+// Params 模块参数
+message Params {
+  uint64 max_miners = 1;
+  string miner_price = 2;
+  int64 halving_period = 3;
+}

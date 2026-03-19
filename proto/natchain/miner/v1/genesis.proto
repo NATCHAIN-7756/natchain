@@ -1,0 +1,25 @@
+syntax = "proto3";
+package natchain.miner.v1;
+
+option go_package = "natchain/x/miner/types";
+
+import "gogoproto/gogo.proto";
+import "natchain/miner/v1/params.proto";
+
+// Miner 矿机信息
+message Miner {
+  string index = 1;
+  string owner = 2;
+  string cpu_sn = 3;
+  int64 registered_at = 4;
+  int64 last_heartbeat = 5;
+  bool active = 6;
+  int64 total_mined = 7;
+}
+
+// GenesisState 定义创世状态
+message GenesisState {
+  repeated Miner miner_list = 1 [(gogoproto.nullable) = false];
+  uint64 miner_count = 2;
+  Params params = 3 [(gogoproto.nullable) = false];
+}

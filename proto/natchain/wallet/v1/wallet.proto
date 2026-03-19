@@ -1,0 +1,32 @@
+syntax = "proto3";
+package natchain.wallet.v1;
+
+option go_package = "natchain/x/wallet/types";
+
+message Wallet {
+  string address = 1;
+  string cold_address = 2;
+  int64 safety_limit = 3;
+  int64 last_transfer = 4;
+  // 自动转出配置
+  int64 auto_transfer_threshold = 5;  // 触发自动转出的余额阈值
+  string auto_transfer_amount = 6;    // 自动转出金额
+  bool auto_transfer_enabled = 7;     // 是否启用自动转出
+}
+
+message TransferRecord {
+  uint64 id = 1;
+  string from_address = 2;
+  string to_address = 3;
+  string amount = 4;
+  int64 timestamp = 5;
+  string status = 6;
+}
+
+message Partner {
+  string owner = 1;
+  string name = 2;
+  string address = 3;
+  string memo = 4;
+  int64 created_at = 5;
+}

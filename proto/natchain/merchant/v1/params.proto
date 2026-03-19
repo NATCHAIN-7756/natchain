@@ -1,0 +1,13 @@
+syntax = "proto3";
+package natchain.merchant.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "natchain/x/merchant/types";
+
+// Params 模块参数
+message Params {
+  int64 max_merchants = 1 [(gogoproto.moretags) = "yaml:\"max_merchants\""];
+  int64 min_commission_rate = 2 [(gogoproto.moretags) = "yaml:\"min_commission_rate\""];
+  int64 max_commission_rate = 3 [(gogoproto.moretags) = "yaml:\"max_commission_rate\""];
+}
