@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>钱包管理 - NatChain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #e5e5e5; min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo { font-size: 1.5rem; font-weight: 700; color: #fff; text-decoration: none; }
+        .logo span { color: #f59e0b; }
+        .back-btn { color: #999; text-decoration: none; font-size: 0.9rem; }
+        .back-btn:hover { color: #fff; }
+        .card { background: #141419; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }
+        .card h3 { margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .balance-section { text-align: center; padding: 2rem; }
+        .balance-label { font-size: 0.9rem; color: #999; margin-bottom: 0.5rem; }
+        .balance-value { font-size: 3rem; font-weight: 700; color: #10b981; }
+        .balance-value .unit { font-size: 1.5rem; color: #666; }
+        .address-box { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 1rem; padding: 0.75rem; background: #1a1a1f; border-radius: 8px; }
+        .address-box input { background: transparent; border: none; color: #f59e0b; font-family: monospace; font-size: 0.9rem; text-align: center; width: 100%; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #999; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem 1rem; background: #1a1a1f; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 1rem; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #f59e0b; }
+        .form-group textarea { min-height: 80px; font-family: monospace; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-hint { font-size: 0.8rem; color: #666; margin-top: 0.25rem; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #f59e0b; color: #000; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn:hover { background: #d97706; }
+        .btn-full { width: 100%; }
+        .btn-outline { background: transparent; color: #f59e0b; border: 1px solid #f59e0b; }
+        .btn-outline:hover { background: rgba(245, 158, 11, 0.1); }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-small { padding: 0.5rem 1rem; font-size: 0.85rem; }
+        .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; overflow-x: auto; }
+        .tab { padding: 0.75rem 1.25rem; background: transparent; border: none; color: #666; font-size: 0.9rem; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .tab.active { color: #f59e0b; border-bottom-color: #f59e0b; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .info-item { padding: 1rem; background: #1a1a1f; border-radius: 8px; }
+        .info-item .label { font-size: 0.8rem; color: #666; margin-bottom: 0.25rem; }
+        .info-item .value { font-size: 1rem; color: #fff; }
+        .info-item .value.highlight { color: #f59e0b; }
+        .info-item .value.success { color: #10b981; }
+        .mnemonic-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin: 1rem 0; }
+        .mnemonic-word { padding: 0.5rem; background: #1a1a1f; border-radius: 6px; text-align: center; font-size: 0.9rem; }
+        .mnemonic-word .num { color: #666; font-size: 0.75rem; }
+        .mnemonic-warning { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 1rem; border-radius: 8px; font-size: 0.85rem; color: #f59e0b; margin-bottom: 1rem; }
+        .tx-list { margin-top: 1rem; }
+        .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #1a1a1f; border-radius: 8px; margin-bottom: 0.5rem; }
+        .tx-item .tx-info .tx-type { font-weight: 500; }
+        .tx-item .tx-info .tx-time { font-size: 0.8rem; color: #666; }
+        .tx-item .tx-amount { font-weight: 600; }
+        .tx-item .tx-amount.positive { color: #10b981; }
+        .tx-item .tx-amount.negative { color: #ef4444; }
+        .partner-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #1a1a1f; border-radius: 8px; margin-bottom: 0.5rem; }
+        .partner-item .partner-address { font-family: monospace; font-size: 0.85rem; color: #f59e0b; }
+        .partner-item .partner-percent { color: #10b981; font-weight: 600; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; padding: 1rem; }
+        .modal { background: #141419; padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal h3 { margin-bottom: 1.5rem; }
+        .modal-close { float: right; background: transparent; border: none; color: #666; font-size: 1.5rem; cursor: pointer; line-height: 1; }
+        .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); padding: 1rem 2rem; background: #10b981; color: #fff; border-radius: 8px; font-weight: 500; z-index: 200; display: none; }
+        .toast.error { background: #ef4444; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .copy-btn { padding: 0.5rem 0.75rem; background: #1a1a1f; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; cursor: pointer; font-size: 0.85rem; }
+        .copy-btn:hover { border-color: #f59e0b; }
+        .loading { opacity: 0.6; pointer-events: none; }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">Nat<span>Chain</span></a>
+        <a href="/" class="back-btn">← 返回官网</a>
+    </header>
+
+    <div class="container">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showSection('overview')">概览</button>
+            <button class="tab" onclick="showSection('create')">创建钱包</button>
+            <button class="tab" onclick="showSection('restore')">恢复钱包</button>
+            <button class="tab" onclick="showSection('transfer')">转账</button>
+            <button class="tab" onclick="showSection('settings')">安全设置</button>
+            <button class="tab" onclick="showSection('partners')">合伙人</button>
+            <button class="tab" onclick="showSection('history')">交易记录</button>
+        </div>
+
+        <!-- Overview Section -->
+        <div class="section active" id="overview">
+            <!-- Unlock Wallet -->
+            <div class="card" id="unlockCard">
+                <h3>🔐 输入钱包地址</h3>
+                <div class="form-group">
+                    <label>钱包地址</label>
+                    <input type="text" id="inputAddress" placeholder="natchain1...">
+                    <div class="form-hint">输入您的钱包地址查看余额和设置</div>
+                </div>
+                <button class="btn btn-full" onclick="loadWallet()">查询钱包</button>
+            </div>
+
+            <!-- Wallet Info -->
+            <div id="walletInfo" style="display: none;">
+                <div class="card balance-section">
+                    <div class="balance-label">可用余额</div>
+                    <div class="balance-value"><span id="balanceAmount">0</span> <span class="unit">stake</span></div>
+                    <div class="address-box">
+                        <input type="text" id="walletAddress" readonly value="natchain1...">
+                        <button class="copy-btn" onclick="copyAddress()">复制</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 钱包设置</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="label">安全额度</div>
+                            <div class="value highlight" id="safetyLimit">未设置</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">冷钱包</div>
+                            <div class="value" id="coldWallet">未设置</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">自动转账</div>
+                            <div class="value" id="autoTransfer">未启用</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">转账阈值</div>
+                            <div class="value" id="autoAmount">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group" style="justify-content: center;">
+                    <button class="btn" onclick="showSection('transfer')">💸 转账</button>
+                    <button class="btn btn-outline" onclick="showSection('settings')">⚙️ 安全设置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Wallet Section -->
+        <div class="section" id="create">
+            <div class="card">
+                <h3>✨ 创建新钱包</h3>
+                <p style="color: #666; margin-bottom: 1.5rem;">在服务器上执行以下命令创建钱包：</p>
+                <div class="form-group">
+                    <label>创建钱包命令</label>
+                    <textarea readonly style="background: #0a0a0f; font-family: monospace; font-size: 0.85rem;">natchaind keys add my-wallet --keyring-backend test --home /root/.natchain</textarea>
+                </div>
+                <div class="mnemonic-warning">⚠️ 请安全保存输出的助记词！丢失将无法恢复钱包。</div>
+                <p style="color: #666; font-size: 0.9rem;">创建后，使用钱包地址在本页面查询余额。</p>
+            </div>
+        </div>
+
+        <!-- Restore Wallet Section -->
+        <div class="section" id="restore">
+            <div class="card">
+                <h3>🔑 恢复钱包</h3>
+                <p style="color: #666; margin-bottom: 1.5rem;">使用助记词恢复已有钱包：</p>
+                <div class="form-group">
+                    <label>恢复钱包命令</label>
+                    <textarea readonly style="background: #0a0a0f; font-family: monospace; font-size: 0.85rem;">natchaind keys add restored-wallet --recover --keyring-backend test --home /root/.natchain</textarea>
+                </div>
+                <p style="color: #666; font-size: 0.9rem; margin-top: 1rem;">执行后会提示输入助记词。</p>
+            </div>
+        </div>
+
+        <!-- Transfer Section -->
+        <div class="section" id="transfer">
+            <div class="card">
+                <h3>💸 转账</h3>
+                <div class="form-group">
+                    <label>发送方地址（您的钱包）</label>
+                    <input type="text" id="fromAddress" placeholder="natchain1...">
+                </div>
+                <div class="form-group">
+                    <label>接收方地址</label>
+                    <input type="text" id="toAddress" placeholder="natchain1...">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>金额</label>
+                        <input type="text" id="transferAmount" placeholder="100">
+                    </div>
+                    <div class="form-group">
+                        <label>代币</label>
+                        <select id="transferDenom">
+                            <option value="stake">stake</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>转账命令（复制到服务器执行）</label>
+                    <textarea id="transferCommand" readonly style="background: #0a0a0f; font-family: monospace; font-size: 0.85rem;" placeholder="填写上方信息后点击生成命令"></textarea>
+                </div>
+                <button class="btn btn-full" onclick="generateTransferCommand()">生成转账命令</button>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="section" id="settings">
+            <div class="card">
+                <h3>⚙️ 安全额度</h3>
+                <div class="form-group">
+                    <label>安全额度</label>
+                    <input type="text" id="setSafetyLimit" placeholder="1000000">
+                </div>
+                <div class="form-group">
+                    <label>您的钱包名称（keyring中的名称）</label>
+                    <input type="text" id="settingsKey" placeholder="validator">
+                </div>
+                <button class="btn btn-outline btn-small" onclick="generateSafetyCommand()">生成设置命令</button>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <textarea id="safetyCommand" readonly style="background: #0a0a0f; font-family: monospace; font-size: 0.85rem;" placeholder="点击上方按钮生成命令"></textarea>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>❄️ 冷钱包地址</h3>
+                <div class="form-group">
+                    <label>冷钱包地址</label>
+                    <input type="text" id="setColdAddress" placeholder="natchain1...">
+                </div>
+                <div class="form-group">
+                    <label>您的钱包名称</label>
+                    <input type="text" id="coldKey" placeholder="validator">
+                </div>
+                <button class="btn btn-outline btn-small" onclick="generateColdCommand()">生成设置命令</button>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <textarea id="coldCommand" readonly style="background: #0a0a0f; font-family: monospace; font-size: 0.85rem;" placeholder="点击上方按钮生成命令"></textarea>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔄 自动转账</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>启用自动转账</label>
+                        <select id="autoTransferEnabled">
+                            <option value="true">启用</option>
+                            <option value="false">禁用</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>转账阈值</label>
+                        <input type="text" id="autoTransferAmount" placeholder="500000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>您的钱包名称</label>
+                    <input type="text" id="autoKey" placeholder="validator">
+                </div>
+                <button class="btn btn-outline btn-small" onclick="generateAutoCommand()">生成设置命令</button>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <textarea id="autoCommand" readonly style="background: #0a0a0f; font-family: monospace; font-size: 0.85rem;" placeholder="点击上方按钮生成命令"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partners Section -->
+        <div class="section" id="partners">
+            <div class="card">
+                <h3>👥 合伙人管理</h3>
+                <p style="color: #666; margin-bottom: 1rem;">添加合伙人分成</p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>合伙人地址</label>
+                        <input type="text" id="partnerAddress" placeholder="natchain1...">
+                    </div>
+                    <div class="form-group">
+                        <label>分成比例 (%)</label>
+                        <input type="text" id="partnerPercent" placeholder="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>您的钱包名称</label>
+                    <input type="text" id="partnerKey" placeholder="validator">
+                </div>
+                <button class="btn btn-outline" onclick="generatePartnerCommand()">生成添加命令</button>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <textarea id="partnerCommand" readonly style="background: #0a0a0f; font-family: monospace; font-size: 0.85rem;" placeholder="点击上方按钮生成命令"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="section" id="history">
+            <div class="card">
+                <h3>📋 交易记录</h3>
+                <div class="form-group">
+                    <label>查询地址</label>
+                    <input type="text" id="historyAddress" placeholder="natchain1...">
+                </div>
+                <button class="btn btn-outline" onclick="loadHistory()">查询记录</button>
+                <div class="tx-list" id="txList" style="margin-top: 1rem;">
+                    <div class="tx-item">
+                        <div class="tx-info">
+                            <div class="tx-type">暂无记录</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_BASE = 'http://38.76.200.118/api';
+        const CHAIN_ID = 'natchain';
+
+        let currentAddress = '';
+
+        function showSection(name) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(name).classList.add('active');
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                t.classList.remove('active');
+                const sections = ['overview', 'create', 'restore', 'transfer', 'settings', 'partners', 'history'];
+                if (sections[i] === name) t.classList.add('active');
+            });
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板'));
+        }
+
+        function copyAddress() {
+            const addr = document.getElementById('walletAddress').value;
+            copyToClipboard(addr);
+        }
+
+        async function apiGet(path) {
+            try {
+                const res = await fetch(`${API_BASE}${path}`);
+                return await res.json();
+            } catch (e) {
+                console.error('API Error:', e);
+                return null;
+            }
+        }
+
+        async function loadWallet() {
+            const address = document.getElementById('inputAddress').value.trim();
+            if (!address) {
+                showToast('请输入钱包地址', true);
+                return;
+            }
+
+            currentAddress = address;
+
+            // Load balance
+            const balanceData = await apiGet(`/cosmos/bank/v1beta1/balances/${address}`);
+            if (balanceData && balanceData.balances) {
+                const balance = balanceData.balances.find(b => b.denom === 'stake') || { amount: '0', denom: 'stake' };
+                document.getElementById('balanceAmount').textContent = parseInt(balance.amount).toLocaleString();
+            }
+
+            // Load wallet settings
+            const walletData = await apiGet(`/natchain/natchain/wallet/wallet/${address}`);
+            if (walletData && walletData.wallet) {
+                const w = walletData.wallet;
+                document.getElementById('safetyLimit').textContent = w.safety_limit ? parseInt(w.safety_limit).toLocaleString() + ' stake' : '未设置';
+                document.getElementById('coldWallet').textContent = w.cold_address || '未设置';
+                document.getElementById('autoTransfer').textContent = w.auto_transfer_enabled ? '已启用' : '未启用';
+                document.getElementById('autoAmount').textContent = w.auto_transfer_amount ? parseInt(w.auto_transfer_amount).toLocaleString() : '-';
+            }
+
+            document.getElementById('walletAddress').value = address;
+            document.getElementById('unlockCard').style.display = 'none';
+            document.getElementById('walletInfo').style.display = 'block';
+        }
+
+        function generateTransferCommand() {
+            const from = document.getElementById('fromAddress').value.trim();
+            const to = document.getElementById('toAddress').value.trim();
+            const amount = document.getElementById('transferAmount').value.trim();
+            const denom = document.getElementById('transferDenom').value;
+
+            if (!from || !to || !amount) {
+                showToast('请填写完整信息', true);
+                return;
+            }
+
+            const cmd = `natchaind tx bank send ${from} ${to} ${amount}${denom} --chain-id ${CHAIN_ID} --keyring-backend test --home /root/.natchain -y`;
+            document.getElementById('transferCommand').value = cmd;
+        }
+
+        function generateSafetyCommand() {
+            const limit = document.getElementById('setSafetyLimit').value.trim();
+            const key = document.getElementById('settingsKey').value.trim() || 'validator';
+
+            if (!limit) {
+                showToast('请输入安全额度', true);
+                return;
+            }
+
+            const cmd = `natchaind tx wallet set-safety-limit --limit ${limit} --from ${key} --chain-id ${CHAIN_ID} --keyring-backend test --home /root/.natchain -y`;
+            document.getElementById('safetyCommand').value = cmd;
+        }
+
+        function generateColdCommand() {
+            const addr = document.getElementById('setColdAddress').value.trim();
+            const key = document.getElementById('coldKey').value.trim() || 'validator';
+
+            if (!addr) {
+                showToast('请输入冷钱包地址', true);
+                return;
+            }
+
+            const cmd = `natchaind tx wallet set-cold-address --cold-address ${addr} --from ${key} --chain-id ${CHAIN_ID} --keyring-backend test --home /root/.natchain -y`;
+            document.getElementById('coldCommand').value = cmd;
+        }
+
+        function generateAutoCommand() {
+            const enabled = document.getElementById('autoTransferEnabled').value;
+            const amount = document.getElementById('autoTransferAmount').value.trim() || '0';
+            const key = document.getElementById('autoKey').value.trim() || 'validator';
+
+            const cmd = `natchaind tx wallet set-auto-transfer --enabled ${enabled} --amount ${amount} --from ${key} --chain-id ${CHAIN_ID} --keyring-backend test --home /root/.natchain -y`;
+            document.getElementById('autoCommand').value = cmd;
+        }
+
+        function generatePartnerCommand() {
+            const addr = document.getElementById('partnerAddress').value.trim();
+            const percent = document.getElementById('partnerPercent').value.trim();
+            const key = document.getElementById('partnerKey').value.trim() || 'validator';
+
+            if (!addr || !percent) {
+                showToast('请填写完整信息', true);
+                return;
+            }
+
+            const cmd = `natchaind tx wallet add-partner --partner-address ${addr} --percentage ${percent} --from ${key} --chain-id ${CHAIN_ID} --keyring-backend test --home /root/.natchain -y`;
+            document.getElementById('partnerCommand').value = cmd;
+        }
+
+        async function loadHistory() {
+            const address = document.getElementById('historyAddress').value.trim();
+            if (!address) {
+                showToast('请输入查询地址', true);
+                return;
+            }
+
+            const data = await apiGet(`/natchain/natchain/wallet/transfer-records/${address}`);
+            const list = document.getElementById('txList');
+
+            if (data && data.transfer_records && data.transfer_records.length > 0) {
+                list.innerHTML = data.transfer_records.map(r => `
+                    <div class="tx-item">
+                        <div class="tx-info">
+                            <div class="tx-type">转账到冷钱包</div>
+                            <div class="tx-time">高度: ${r.height || '-'}</div>
+                        </div>
+                        <div class="tx-amount negative">-${r.amount || '0'}</div>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = '<div class="tx-item"><div class="tx-info"><div class="tx-type">暂无记录</div></div></div>';
+            }
+        }
+    </script>
+</body>
+</html>

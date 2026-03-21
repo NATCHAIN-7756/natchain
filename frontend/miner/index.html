@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>矿机管理 - NatChain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0f;
+            color: #e5e5e5;
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: #fff; }
+        .logo span { color: #f59e0b; }
+        .back-btn {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-btn:hover { color: #fff; }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #141419;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .stat-card .label { font-size: 0.85rem; color: #999; margin-bottom: 0.5rem; }
+        .stat-card .value { font-size: 2rem; font-weight: 700; }
+        .stat-card .value.success { color: #10b981; }
+        .stat-card .value.warning { color: #f59e0b; }
+        .stat-card .value.danger { color: #ef4444; }
+        .stat-card .sub { font-size: 0.8rem; color: #666; margin-top: 0.25rem; }
+
+        /* Progress Bar */
+        .progress-section {
+            background: #141419;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+        .progress-section h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+        .progress-bar {
+            height: 24px;
+            background: #1a1a1f;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Miner Cards */
+        .miners-section h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+        .miners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .miner-card {
+            background: #141419;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .miner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .miner-id { font-weight: 600; font-size: 1rem; }
+        .miner-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .status-dot.online { background: #10b981; box-shadow: 0 0 8px #10b981; }
+        .status-dot.offline { background: #ef4444; }
+        .miner-info {
+            font-size: 0.85rem;
+            color: #999;
+            line-height: 1.8;
+        }
+        .miner-info span { color: #fff; }
+
+        /* Wallet Section */
+        .wallet-section {
+            background: #141419;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+        .wallet-section h3 { margin-bottom: 1rem; }
+        .wallet-balance {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+        .wallet-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .wallet-info-item .label { font-size: 0.85rem; color: #999; }
+        .wallet-info-item .value { font-size: 1rem; color: #fff; margin-top: 0.25rem; }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #f59e0b;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn:hover { background: #d97706; }
+        .btn-outline {
+            background: transparent;
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        /* Recent Activity */
+        .activity-section {
+            background: #141419;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .activity-section h3 { margin-bottom: 1rem; }
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-time { color: #666; font-size: 0.85rem; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal {
+            background: #141419;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        .modal h3 { margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #999;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #1a1a1f;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Nat<span>Chain</span></div>
+        <a href="/" class="back-btn">← 返回官网</a>
+    </header>
+
+    <div class="container">
+        <!-- Wallet Section -->
+        <div class="wallet-section">
+            <h3>💰 我的钱包</h3>
+            <div class="wallet-balance" id="walletBalance">0.00 NAT</div>
+            <div class="wallet-info">
+                <div class="wallet-info-item">
+                    <div class="label">安全额度</div>
+                    <div class="value" id="safetyLimit">1,000,000 stake</div>
+                </div>
+                <div class="wallet-info-item">
+                    <div class="label">冷钱包</div>
+                    <div class="value" id="coldWallet">未设置</div>
+                </div>
+                <div class="wallet-info-item">
+                    <div class="label">自动转账</div>
+                    <div class="value" id="autoTransfer">已启用</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">我的矿机</div>
+                <div class="value success" id="myMiners">0</div>
+                <div class="sub">台</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">在线矿机</div>
+                <div class="value" id="onlineMiners">0</div>
+                <div class="sub">台</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">累计收益</div>
+                <div class="value warning" id="totalEarnings">0</div>
+                <div class="sub">NAT</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">今日收益</div>
+                <div class="value" id="todayEarnings">0</div>
+                <div class="sub">NAT</div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-section">
+            <h3>📊 矿机进度 <span style="color: #666; font-weight: 400;">(全网 <span id="totalMiners">0</span> / 1000 台)</span></h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                <span class="progress-text"><span id="progressPercent">0</span>%</span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button class="btn" onclick="showRegisterModal()">+ 注册矿机</button>
+            <button class="btn btn-outline btn-small" onclick="sendHeartbeat()">发送心跳</button>
+            <button class="btn btn-outline btn-small" onclick="refreshData()">刷新数据</button>
+        </div>
+
+        <!-- Miners -->
+        <div class="miners-section">
+            <h3>⛏️ 我的矿机</h3>
+            <div class="miners-grid" id="minersGrid">
+                <div class="empty-state">
+                    暂无矿机<br>
+                    <button class="btn btn-outline" onclick="showRegisterModal()" style="margin-top: 1rem;">注册第一台矿机</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section" style="margin-top: 2rem;">
+            <h3>📋 最近活动</h3>
+            <div id="activityList">
+                <div class="activity-item">
+                    <span>暂无活动记录</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal">
+            <h3>注册矿机</h3>
+            <div class="form-group">
+                <label>CPU 序列号</label>
+                <input type="text" id="cpuSn" placeholder="输入 CPU 序列号">
+            </div>
+            <button class="btn" onclick="registerMiner()" style="width: 100%;">注册</button>
+            <button class="btn btn-outline" onclick="closeRegisterModal()" style="width: 100%; margin-top: 0.5rem;">取消</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const RPC_URL = 'http://38.76.200.118:26657';
+        
+        // Mock data
+        let miners = [];
+        let totalMiners = 0;
+
+        function showRegisterModal() {
+            document.getElementById('registerModal').style.display = 'flex';
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').style.display = 'none';
+        }
+
+        function registerMiner() {
+            const cpuSn = document.getElementById('cpuSn').value.trim();
+            if (!cpuSn) {
+                alert('请输入 CPU 序列号');
+                return;
+            }
+            
+            // In production, call actual API
+            alert('注册命令：\n\nnatchaind tx miner register-miner --cpu-sn ' + cpuSn + ' --from <your-key> --chain-id natchain -y');
+            closeRegisterModal();
+        }
+
+        function sendHeartbeat() {
+            if (miners.length === 0) {
+                alert('您还没有注册矿机');
+                return;
+            }
+            alert('心跳命令：\n\nnatchaind tx miner heartbeat --cpu-sn <CPU-SN> --from <your-key> --chain-id natchain -y');
+        }
+
+        function refreshData() {
+            // In production, fetch from actual API
+            alert('数据已刷新');
+        }
+
+        function updateUI() {
+            // Update stats
+            document.getElementById('myMiners').textContent = miners.length;
+            document.getElementById('onlineMiners').textContent = miners.filter(m => m.online).length;
+            document.getElementById('totalMiners').textContent = totalMiners;
+            
+            // Update progress
+            const percent = Math.min(100, (totalMiners / 1000) * 100);
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = percent.toFixed(1);
+            
+            // Update miners grid
+            if (miners.length > 0) {
+                const grid = document.getElementById('minersGrid');
+                grid.innerHTML = miners.map(m => `
+                    <div class="miner-card">
+                        <div class="miner-header">
+                            <span class="miner-id">${m.cpuSn}</span>
+                            <span class="miner-status">
+                                <span class="status-dot ${m.online ? 'online' : 'offline'}"></span>
+                                ${m.online ? '在线' : '离线'}
+                            </span>
+                        </div>
+                        <div class="miner-info">
+                            注册时间: <span>${m.registeredAt}</span><br>
+                            最后心跳: <span>${m.lastHeartbeat}</span><br>
+                            累计收益: <span>${m.earnings} NAT</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>

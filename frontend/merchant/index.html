@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商家后台 - NatChain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0f;
+            color: #e5e5e5;
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: #fff; }
+        .logo span { color: #f59e0b; }
+        .back-btn {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-btn:hover { color: #fff; }
+
+        /* Login Section */
+        .login-section {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 2rem;
+            background: #141419;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .login-section h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #999;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #1a1a1f;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #f59e0b;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .btn:hover { background: #d97706; }
+        .btn-secondary {
+            background: transparent;
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+
+        /* Dashboard */
+        .dashboard { display: none; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #141419;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-card .label { font-size: 0.85rem; color: #999; margin-bottom: 0.5rem; }
+        .stat-card .value { font-size: 1.75rem; font-weight: 700; color: #fff; }
+        .stat-card .value.success { color: #10b981; }
+        .stat-card .value.warning { color: #f59e0b; }
+
+        /* API Key Section */
+        .api-section {
+            background: #141419;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+        .api-section h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+        .api-key-box {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .api-key-box input {
+            flex: 1;
+            padding: 0.75rem;
+            background: #1a1a1f;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: #fff;
+            font-family: monospace;
+        }
+        .copy-btn {
+            padding: 0.75rem 1rem;
+            background: #1a1a1f;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+        }
+        .copy-btn:hover { border-color: #f59e0b; }
+
+        /* Payments Table */
+        .payments-section {
+            background: #141419;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .payments-section h3 { margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        th { font-size: 0.85rem; color: #999; font-weight: 500; }
+        td { font-size: 0.9rem; }
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .status.pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status.confirmed { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .status.failed { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Nat<span>Chain</span></div>
+        <a href="/" class="back-btn">← 返回官网</a>
+    </header>
+
+    <div class="container">
+        <!-- Login Section -->
+        <div class="login-section" id="loginSection">
+            <h2>商家登录</h2>
+            <div class="form-group">
+                <label>商家地址</label>
+                <input type="text" id="merchantAddress" placeholder="natchain1...">
+            </div>
+            <div class="form-group">
+                <label>API Key</label>
+                <input type="text" id="apiKey" placeholder="您的 API 密钥">
+            </div>
+            <button class="btn" onclick="login()">登录</button>
+            <button class="btn btn-secondary" onclick="showRegister()" style="margin-top: 0.5rem;">注册商家</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard" id="dashboard">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview')">概览</button>
+                <button class="tab" onclick="showTab('payments')">支付记录</button>
+                <button class="tab" onclick="showTab('settings')">设置</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overviewTab">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="label">总收入</div>
+                        <div class="value success" id="totalIncome">0 stake</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">待确认</div>
+                        <div class="value warning" id="pendingAmount">0 stake</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">支付笔数</div>
+                        <div class="value" id="paymentCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">佣金比例</div>
+                        <div class="value" id="commissionRate">0%</div>
+                    </div>
+                </div>
+
+                <div class="api-section">
+                    <h3>API 密钥</h3>
+                    <div class="api-key-box">
+                        <input type="text" id="displayApiKey" readonly>
+                        <button class="copy-btn" onclick="copyApiKey()">复制</button>
+                    </div>
+                    <button class="btn btn-secondary" onclick="regenerateApiKey()" style="width: auto; margin-top: 0;">重新生成</button>
+                </div>
+            </div>
+
+            <!-- Payments Tab -->
+            <div id="paymentsTab" style="display: none;">
+                <div class="payments-section">
+                    <h3>支付记录</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>支付ID</th>
+                                <th>用户地址</th>
+                                <th>金额</th>
+                                <th>状态</th>
+                                <th>时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsTable">
+                            <tr>
+                                <td colspan="6" class="empty-state">暂无支付记录</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" style="display: none;">
+                <div class="api-section">
+                    <h3>商家信息</h3>
+                    <div class="form-group">
+                        <label>商家名称</label>
+                        <input type="text" id="merchantName" placeholder="您的商家名称">
+                    </div>
+                    <div class="form-group">
+                        <label>回调地址</label>
+                        <input type="text" id="callbackUrl" placeholder="https://example.com/callback">
+                    </div>
+                    <div class="form-group">
+                        <label>佣金比例 (%)</label>
+                        <input type="number" id="editCommissionRate" min="0" max="100" placeholder="0-100">
+                    </div>
+                    <button class="btn" onclick="updateMerchant()" style="width: auto;">保存修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const RPC_URL = 'http://38.76.200.118:26657';
+        
+        let merchantData = null;
+
+        function login() {
+            const address = document.getElementById('merchantAddress').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!address || !apiKey) {
+                alert('请输入商家地址和 API Key');
+                return;
+            }
+            
+            // Query merchant info
+            fetchMerchant(address, apiKey);
+        }
+
+        async function fetchMerchant(address, apiKey) {
+            try {
+                // In production, this would call the actual API
+                // For now, simulate with mock data
+                merchantData = {
+                    address: address,
+                    name: '测试商家',
+                    apiKey: apiKey,
+                    callbackUrl: 'https://example.com/callback',
+                    commissionRate: 5,
+                    createdAt: Date.now()
+                };
+                
+                showDashboard();
+            } catch (error) {
+                alert('登录失败: ' + error.message);
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Update stats
+            document.getElementById('totalIncome').textContent = '0 stake';
+            document.getElementById('pendingAmount').textContent = '0 stake';
+            document.getElementById('paymentCount').textContent = '0';
+            document.getElementById('commissionRate').textContent = merchantData.commissionRate + '%';
+            document.getElementById('displayApiKey').value = merchantData.apiKey;
+            
+            // Settings
+            document.getElementById('merchantName').value = merchantData.name;
+            document.getElementById('callbackUrl').value = merchantData.callbackUrl;
+            document.getElementById('editCommissionRate').value = merchantData.commissionRate;
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.getElementById('overviewTab').style.display = 'none';
+            document.getElementById('paymentsTab').style.display = 'none';
+            document.getElementById('settingsTab').style.display = 'none';
+            
+            // Remove active class
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').style.display = 'block';
+            event.target.classList.add('active');
+        }
+
+        function copyApiKey() {
+            const input = document.getElementById('displayApiKey');
+            input.select();
+            document.execCommand('copy');
+            alert('API Key 已复制到剪贴板');
+        }
+
+        function regenerateApiKey() {
+            if (confirm('确定要重新生成 API Key 吗？旧密钥将立即失效。')) {
+                const newKey = 'sk_' + Math.random().toString(36).substr(2, 32);
+                document.getElementById('displayApiKey').value = newKey;
+                alert('新 API Key 已生成！');
+            }
+        }
+
+        function updateMerchant() {
+            const name = document.getElementById('merchantName').value;
+            const callbackUrl = document.getElementById('callbackUrl').value;
+            const rate = document.getElementById('editCommissionRate').value;
+            
+            // In production, call the actual API
+            alert('商家信息已更新！');
+        }
+
+        function showRegister() {
+            alert('请使用 CLI 命令注册商家：\n\nnatchaind tx merchant register --name "您的商家名称" --callback-url "https://..." --commission-rate 5 --from <your-key> --chain-id natchain -y');
+        }
+    </script>
+</body>
+</html>
